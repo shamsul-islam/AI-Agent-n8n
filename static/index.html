@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Article Processor</title>
+</head>
+<body>
+    <h1>Article Processor</h1>
+    <form id="articleForm">
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email" required size="40"><br><br>
+        <label for="article_url">Article URL:</label><br>
+        <input type="url" id="article_url" name="article_url" required size="80"><br><br>
+        <button type="submit">Process Article</button>
+    </form>
+
+    <script>
+        document.getElementById("articleForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const email = document.getElementById("email").value;
+            const article_url = document.getElementById("article_url").value;
+
+            const response = await fetch("/process-article/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email, article_url })
+            });
+
+            const result = await response.json();
+            alert(result.message);
+        });
+    </script>
+</body>
+</html>

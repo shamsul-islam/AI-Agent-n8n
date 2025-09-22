@@ -1,0 +1,154 @@
+{
+  "name": "AI Article Processor",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "path": "webhook",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ],
+      "webhookId": "YOUR_WEBHOOK_ID"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{$json.body.article_url}}",
+        "options": {},
+        "responseFormat": "string"
+      },
+      "name": "Get Article Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "value": "={{$items[0].json.data}}",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "text",
+              "cssSelector": "body",
+              "extractAttribute": "text"
+            }
+          ]
+        }
+      },
+      "name": "Extract Text from HTML",
+      "type": "n8n-nodes-base.htmlExtract",
+      "typeVersion": 1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "sheetId": "1wn5_-k13Hrd3RWilJWbl-JhyyW2nfaSAX3m_HH4frGw",
+        "range": "A1",
+        "values": "='TEST_DATA'",
+        "operation": "append",
+        "options": {}
+      },
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 1,
+      "position": [
+        1550,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "to": "={{$node[\"Webhook\"].json.body.email}}",
+        "subject": "Your Article Summary and Insights",
+        "text": "Summary: {{$node.Summarize.json.choices[0].text}}\n\nInsights: {{$node.Insights.json.choices[0].text}}",
+        "options": {}
+      },
+      "name": "Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        1750,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Get Article Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Article Content": {
+      "main": [
+        [
+          {
+            "node": "Extract Text from HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text from HTML": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
